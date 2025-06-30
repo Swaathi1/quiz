@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizMaster App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #2193b0, #6dd5ed);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }.container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 5px;
+  background: linear-gradient(to right, #f12711, #f5af19);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h2 {
+  font-size: 1.2rem;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.question {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.options button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 1rem;
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.options button:hover {
+  background-color: #0b7dda;
+}
+
+.score {
+  font-size: 1.4rem;
+  color: green;
+  margin-top: 20px;
+}
+
+.feedback {
+  font-weight: bold;
+  margin-top: 10px;
+  font-size: 1.2rem;
+}
+.correct {
+  color: green;
+}
+.wrong {
+  color: red;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌐 Web Services Quiz App</h1>
+    <div id="quiz-box">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="score" id="score"></div>
+  </div>  <script>
+    const questions = [
+      { q: "What is a key characteristic of web services?", options: ["Operate only on desktop systems", "Use closed, proprietary protocols", "Enable system communication over a network", "Require the same programming language on both sides"], answer: "Enable system communication over a network" },
+      { q: "Which protocol is most commonly used for web services communication?", options: ["FTP", "SMTP", "HTTP", "SNMP"], answer: "HTTP" },
+      { q: "What does SOAP use for messaging?", options: ["JSON", "HTML", "XML", "YAML"], answer: "XML" },
+      { q: "Which is NOT a benefit of using web services?", options: ["Interoperability", "Platform independence", "Vendor lock-in", "Scalability"], answer: "Vendor lock-in" },
+      { q: "Which HTTP methods are commonly used in RESTful web services?", options: ["CONNECT, TRACE", "GET, POST, PUT, DELETE", "FETCH, STORE, EXECUTE", "OPEN, SEND, RECEIVE"], answer: "GET, POST, PUT, DELETE" },
+      { q: "In which of these domains are web services least applicable?", options: ["E-commerce", "Social Media Integration", "Manual paper-based filing systems", "Healthcare"], answer: "Manual paper-based filing systems" },
+      { q: "What is the role of a service consumer in web services?", options: ["Hosts and manages the web service", "Develops the WSDL document", "Accesses and uses the web service", "Encrypts all data at rest"], answer: "Accesses and uses the web service" },
+      { q: "What is WSDL used for in SOAP web services?", options: ["Describing REST APIs", "Defining security tokens", "Describing service interfaces", "Monitoring network traffic"], answer: "Describing service interfaces" },
+      { q: "What format is commonly used in REST APIs besides XML?", options: ["YAML", "PDF", "JSON", "CSV"], answer: "JSON" },
+      { q: "Which of the following is a type of web service?", options: ["FTP", "REST", "VPN", "DNS"], answer: "REST" },
+      { q: "Which of the following is a component of REST architecture?", options: ["SQL Injection", "WSDL", "Statelessness", "Session Tracking"], answer: "Statelessness" },
+      { q: "What does REST stand for?", options: ["Reliable Enterprise Standard Technology", "Real-time Encrypted Secure Transmission", "Representational State Transfer", "Random Structure Transfer"], answer: "Representational State Transfer" },
+      { q: "Which of the following is a common application of web services in cloud computing?", options: ["Firewall configuration", "Local file access", "Virtual machine management", "Device driver updates"], answer: "Virtual machine management" },
+      { q: "Which format is NOT typically supported by REST APIs?", options: ["XML", "JSON", "YAML", ".EXE"], answer: ".EXE" },
+      { q: "What is the primary advantage of using web services in mobile applications?", options: ["Device overclocking", "Sending SMS", "Real-time messaging and data sync", "File system access"], answer: "Real-time messaging and data sync" },
+      { q: "Which web service type is most suitable for lightweight, mobile-friendly applications?", options: ["SOAP", "WSDL", "REST", "FTP"], answer: "REST" },
+      { q: "Which of these is a key opportunity offered by web services?", options: ["Increased complexity", "Platform dependency", "Rapid service deployment", "Limited accessibility"], answer: "Rapid service deployment" },
+      { q: "What does a service provider do in the web service model?", options: ["Creates viruses", "Requests services", "Hosts and delivers the web service", "Blocks access to services"], answer: "Hosts and delivers the web service" },
+      { q: "What is a major benefit of using standard protocols like HTTP in web services?", options: ["Encryption is not needed", "They are not secure", "Ease of integration across platforms", "They work only on Windows"], answer: "Ease of integration across platforms" },
+      { q: "In which of the following sectors is API usage most relevant for digital identity verification?", options: ["Gaming", "Agriculture", "Government Services", "Textile Manufacturing"], answer: "Government Services" }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const feedbackEl = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+
+    function loadQuestion() {
+      const q = questions[current];
+      questionEl.innerText = `${current + 1}. ${q.q}`;
+      optionsEl.innerHTML = "";
+      feedbackEl.innerText = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const correct = questions[current].answer;
+      if (selected === correct) {
+        score++;
+        feedbackEl.innerText = "✅ Correct!";
+        feedbackEl.className = "feedback correct";
+      } else {
+        feedbackEl.innerText = `❌ Wrong! Correct answer: ${correct}`;
+        feedbackEl.className = "feedback wrong";
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          showScore();
+        }
+      }, 1000);
+    }
+
+    function showScore() {
+      document.getElementById("quiz-box").style.display = "none";
+      scoreEl.innerText = `🎉 You scored ${score} out of ${questions.length}`;
+    }
+
+    loadQuestion();
+  </script></body>
+</html>
